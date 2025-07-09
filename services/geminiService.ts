@@ -5,7 +5,7 @@ if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable is not set.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.VITE_GOOGLE_API_KEY });
 
 export const summarizeText = async (text: string): Promise<string> => {
   try {
