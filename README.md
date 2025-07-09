@@ -1,14 +1,1 @@
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3b532c64-521c-459a-afae-e6178b272fe1/deploy-status)](https://app.netlify.com/projects/study-well/deploys)
