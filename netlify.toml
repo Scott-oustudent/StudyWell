@@ -1,0 +1,26 @@
+# Base build settings for Netlify.
+[build]
+  # This command builds the app for production. 
+  # You would need a package.json with a "build" script, e.g., "vite build".
+  # Assuming a build tool is set up, this is the standard command.
+  command = "npm run build" 
+
+  # The folder where the built, static files are located.
+  # For Vite, this is 'dist'. For Create React App, it's 'build'.
+  publish = "dist"
+
+# Redirect rule for Single-Page Applications (SPAs).
+# This is crucial for React Router or other client-side routers to work.
+# It ensures that any request to a non-existent file path is redirected 
+# to your main index.html file, letting React handle the routing.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Optional: Set build context for environment variables.
+# This ensures your build process can access the API_KEY.
+# The actual key value should be set in the Netlify UI for security.
+[context.production.environment]
+  # This tells Netlify that the build command needs this variable.
+  API_KEY = "Your Gemini API Key"

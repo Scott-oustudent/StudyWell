@@ -1,0 +1,9 @@
+{
+  "name": "StudyWell",
+  "description": "An AI-powered student companion app to help with summarizing notes, generating flashcards, and explaining complex concepts.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "prompt": ""
+}
