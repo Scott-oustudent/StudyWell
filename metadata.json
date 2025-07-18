@@ -1,0 +1,9 @@
+{
+  "name": "StudyWell",
+  "description": "An AI Powered Student Companion App",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "prompt": ""
+}
