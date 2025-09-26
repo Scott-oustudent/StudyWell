@@ -1,16 +1,39 @@
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
 import { ReferencingStyle, PlagiarismResult, ScheduleEvent } from '../types';
 
-if (!process.env.API_KEY) {
+// FIX: Use the VITE_ prefixed environment variable for client-side access
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const MOCK_ERROR_RESPONSE = "Gemini API Key is missing or not configured in the environment. AI features are disabled.";
+
+
+if (!GEMINI_API_KEY) {
   // In a real app, you'd want to handle this more gracefully.
   // For this context, we assume the key is present.
   console.warn("API_KEY environment variable not set. Gemini API calls will fail.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+// FIX: Initialize GoogleGenAI with the actual key or a placeholder to prevent the 'Uncaught Error: An API Key must be set' crash during module load.
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY || 'MOCK_API_KEY' });
 const model = 'gemini-2.5-flash';
 
+// Helper for gracefully failing if key is missing
+const isApiReady = () => {
+    if (!GEMINI_API_KEY) {
+        console.error(MOCK_ERROR_RESPONSE);
+        return false;
+    }
+    return true;
+}
+
+
 export const checkPlagiarism = async (text: string): Promise<PlagiarismResult> => {
+  if (!isApiReady()) {
+      return {
+          summary: MOCK_ERROR_RESPONSE,
+          findings: [],
+          plagiarismScore: 0,
+      };
+  }
   try {
     const prompt = `
       Analyze the following text for potential plagiarism. Your response must be in JSON format according to the provided schema.
@@ -85,6 +108,7 @@ export const checkPlagiarism = async (text: string): Promise<PlagiarismResult> =
 };
 
 export const generateCitation = async (style: ReferencingStyle, sourceType: string, details: string): Promise<string> => {
+  if (!isApiReady()) return MOCK_ERROR_RESPONSE;
   try {
     const prompt = `
       Generate a citation in ${style} style for the following source.
@@ -105,6 +129,7 @@ export const generateCitation = async (style: ReferencingStyle, sourceType: stri
 };
 
 export const generateEssayStructure = async (topic: string, type: 'Essay' | 'Report', wordCount: number): Promise<string> => {
+  if (!isApiReady()) return MOCK_ERROR_RESPONSE;
   try {
     const prompt = `
       Create a detailed structure and format for a ${type} of approximately ${wordCount} words on the topic: "${topic}".
@@ -124,6 +149,7 @@ export const generateEssayStructure = async (topic: string, type: 'Essay' | 'Rep
 };
 
 export const generateFlashcards = async (subject: string): Promise<{question: string, answer: string}[]> => {
+  if (!isApiReady()) return [];
   try {
     const prompt = `Generate 10 flashcards for the subject: "${subject}". Each flashcard should have a question and a concise answer.`;
     const response: GenerateContentResponse = await ai.models.generateContent({
@@ -154,6 +180,7 @@ export const generateFlashcards = async (subject: string): Promise<{question: st
 };
 
 export const explainConcept = async (concept: string, complexity: string): Promise<string> => {
+  if (!isApiReady()) return MOCK_ERROR_RESPONSE;
   try {
     const prompt = `
       Explain the following concept or question.
@@ -174,6 +201,7 @@ export const explainConcept = async (concept: string, complexity: string): Promi
 };
 
 export const generateMindfulMoment = async (): Promise<string> => {
+  if (!isApiReady()) return MOCK_ERROR_RESPONSE;
   try {
     const prompt = `
       Generate a short, simple, and actionable mindfulness exercise for a stressed student. 
@@ -196,6 +224,7 @@ export const generateMindfulMoment = async (): Promise<string> => {
 // --- New AI Functions ---
 
 export const summarizeText = async (text: string): Promise<string> => {
+  if (!isApiReady()) return MOCK_ERROR_RESPONSE;
   try {
     const prompt = `Summarize the following text concisely. Focus on the main points and key takeaways.\n\nText:\n---\n${text}`;
     const response = await ai.models.generateContent({ model, contents: prompt });
@@ -207,6 +236,7 @@ export const summarizeText = async (text: string): Promise<string> => {
 };
 
 export const findActionItems = async (text: string): Promise<string> => {
+    if (!isApiReady()) return MOCK_ERROR_RESPONSE;
     try {
       const prompt = `Analyze the following text and extract any potential action items, tasks, or deadlines. List them clearly as bullet points. If no action items are found, state that.\n\nText:\n---\n${text}`;
       const response = await ai.models.generateContent({ model, contents: prompt });
@@ -218,6 +248,7 @@ export const findActionItems = async (text: string): Promise<string> => {
 };
 
 export const improveWriting = async (text: string): Promise<string> => {
+    if (!isApiReady()) return MOCK_ERROR_RESPONSE;
     try {
       const prompt = `Review and improve the following text. Correct any spelling and grammar mistakes, and enhance the clarity and flow. Provide only the improved text as the response.\n\nOriginal Text:\n---\n${text}`;
       const response = await ai.models.generateContent({ model, contents: prompt });
@@ -229,6 +260,7 @@ export const improveWriting = async (text: string): Promise<string> => {
 };
 
 export const answerFromDocument = async (documentText: string, question: string): Promise<string> => {
+    if (!isApiReady()) return MOCK_ERROR_RESPONSE;
     try {
         const prompt = `Based *only* on the provided document text, answer the following question. If the answer cannot be found in the document, state that clearly.\n\nDocument Text:\n---\n${documentText}\n---\n\nQuestion: ${question}`;
         const response = await ai.models.generateContent({ model, contents: prompt });
@@ -240,6 +272,7 @@ export const answerFromDocument = async (documentText: string, question: string)
 };
 
 export const createStudyPlan = async (goal: string, timeframe: string): Promise<Omit<ScheduleEvent, 'id'>[]> => {
+    if (!isApiReady()) return [];
     try {
         const prompt = `
             Create a structured study plan for a student.
