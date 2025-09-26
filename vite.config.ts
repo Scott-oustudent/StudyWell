@@ -6,6 +6,10 @@ import * as path from 'path';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
+    // FIX: Set base to './' to ensure relative paths for static hosting (like Netlify).
+    // This allows the browser to find assets relative to the index.html file.
+    base: './',
+
     server: {
       port: 3000, host: '0.0.0.0', proxy: {
         '/api': {
